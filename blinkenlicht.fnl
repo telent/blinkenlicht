@@ -1,4 +1,5 @@
 (local {: Gtk
+        : GtkLayerShell
         : Gdk
         : GdkPixbuf
         : GLib
@@ -61,6 +62,24 @@
      : update
      }))
 
+(fn make-layer-shell [window layer exclusive? anchors]
+  (let [s GtkLayerShell]
+    (s.init_for_window window)
+    (s.set_layer window (. {
+                            :top GtkLayerShell.Layer.TOP
+                            }
+                           layer))
+    (if exclusive? (s.auto_exclusive_zone_enable window))
+
+    (each [edge margin (pairs anchors)]
+      (let [edge (. {:top GtkLayerShell.Edge.TOP
+                     :bottom GtkLayerShell.Edge.BOTTOM
+                     :left GtkLayerShell.Edge.LEFT
+                     :right GtkLayerShell.Edge.RIGHT}
+                    edge)]
+        (GtkLayerShell.set_margin window edge margin)
+        (GtkLayerShell.set_anchor window edge 1)))))
+
 (local bars [])
 
 (fn bar [{ : anchor : orientation : indicators }]
@@ -85,6 +104,9 @@
            (indicator:update)))
        true))
   (each [_ b (ipairs bars)]
+    (make-layer-shell b.window :top true
+                      (collect [_ edge (ipairs b.anchor)]
+                        edge 1))
     (b.window:show_all))
   (Gtk.main))
 

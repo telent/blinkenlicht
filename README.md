@@ -8,6 +8,16 @@ More seriously: you might prefer this over another status bar program
 if you want fine-grained control over what is shown in your bar and
 you are happy to exert that control in a Lua-based Lisp language.
 
+## Plan
+
+* [X] use gtk-layer-shell to put it in a layer
+* [] update only at relevant intervals
+* [] do we need file poll support? prolly not if we're calling every 200ms
+* [] cache icon pixbufs
+* [] update image/label widget instead of destroying
+* [] allow height customisation
+
+
 ```fennel
 (bar
  {
