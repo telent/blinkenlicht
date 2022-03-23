@@ -17,7 +17,6 @@ you are happy to exert that control in a Lua-based Lisp language.
 * [] update image/label widget instead of destroying
 * [] allow height customisation
 
-
 ```fennel
 (bar
  {

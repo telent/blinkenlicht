@@ -39,7 +39,6 @@
 (fn update-button [button icon text]
   (match (button:get_child) it (button:remove it))
   (let [i (resolve icon)]
-    (print :update i (resolve text))
     (if i
         (button:add (find-icon i))
         (button:add (Gtk.Label {:label (resolve text)})))
@@ -51,15 +50,18 @@
                 : poll
                 : text
                 : on-click}]
-  (let [button
-        (Gtk.Button { :relief  Gtk.ReliefStyle.NONE})
-        update #(update-button button icon text)]
-    (update)
+  (var last-update -1)
+  (let [button (Gtk.Button { :relief  Gtk.ReliefStyle.NONE})
+        update (fn [now]
+                 (when (and interval (> now (+ last-update interval)))
+                   (update-button button icon text)
+                   (set last-update now)))]
+    (update 0)
     {
      : interval
      : poll
      : button
-     : update
+     :update #(update $2)
      }))
 
 (fn make-layer-shell [window layer exclusive? anchors]
@@ -93,15 +95,19 @@
       (box:pack_start i.button false false 0))
     (window:add box)))
 
+;; we want to run each indicator's update function only when
+;; more than `interval` ms has elapsed since it last ran
+
+
 (fn run []
   (GLib.timeout_add
      0
      1000
      (fn []
-       (print :update)
-       (each [_ bar (ipairs bars)]
-         (each [_ indicator (ipairs bar.indicators)]
-           (indicator:update)))
+       (let [now (/ (GLib.get_monotonic_time) 1000)]
+         (each [_ bar (ipairs bars)]
+           (each [_ indicator (ipairs bar.indicators)]
+             (indicator:update now))))
        true))
   (each [_ b (ipairs bars)]
     (make-layer-shell b.window :top true
