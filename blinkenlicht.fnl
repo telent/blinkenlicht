@@ -32,16 +32,19 @@
 (local found-icons {})
 
 (fn load-icon [name]
-  (if (= (name:sub 1 1) "/")
-      ;; From a direct path
-      (GdkPixbuf.Pixbuf.new_from_file_at_scale name HEIGHT -1 true)
-      ;; From icon theme
-      (Gtk.Image.new_from_pixbuf (find-icon-pixbuf name))))
+  (let [pixbuf
+        (if (= (name:sub 1 1) "/")
+            ;; From a direct path
+            (GdkPixbuf.Pixbuf.new_from_file_at_scale name HEIGHT -1 true)
+            ;; From icon theme
+            (find-icon-pixbuf name))]
+    (Gtk.Image.new_from_pixbuf pixbuf)))
 
 (fn find-icon [name]
   (let [icon (. found-icons name)]
     (or icon
-        (let [icon (load-icon name)]
+        (let [(icon err) (load-icon name)]
+          (if (not icon) (print err))
           (tset found-icons name icon)
           icon))))
 
