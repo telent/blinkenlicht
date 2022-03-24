@@ -33,11 +33,11 @@ required - or just use it, of course.
 * [X] use gtk-layer-shell to put it in a layer
 * [X] update only at relevant intervals
 * [X] cache icon pixbufs
-* [] update image/label widget instead of destroying
-* [] allow height customisation
-* [] add some mechanism for indicators that wait for events instead of polling
-* [] set poll interval based on indicators' requested intervals
-* [] set indicator background colour (use css for this?)
+* [ ] update image/label widget instead of destroying
+* [ ] allow height customisation
+* [ ] add some mechanism for indicators that wait for events instead of polling
+* [ ] set poll interval based on indicators' requested intervals
+* [ ] set indicator background colour (use css for this?)
 
 ```fennel
 
