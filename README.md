@@ -11,9 +11,8 @@ you are happy to exert that control in a Lua-based Lisp language.
 ## Plan
 
 * [X] use gtk-layer-shell to put it in a layer
-* [] update only at relevant intervals
-* [] do we need file poll support? prolly not if we're calling every 200ms
-* [] cache icon pixbufs
+* [X] update only at relevant intervals
+* [X] cache icon pixbufs
 * [] update image/label widget instead of destroying
 * [] allow height customisation
 

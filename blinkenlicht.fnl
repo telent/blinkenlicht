@@ -29,12 +29,21 @@
                     GdkPixbuf.InterpType.BILINEAR)))))
   found)
 
-(fn find-icon [name]
+(local found-icons {})
+
+(fn load-icon [name]
   (if (= (name:sub 1 1) "/")
       ;; From a direct path
       (GdkPixbuf.Pixbuf.new_from_file_at_scale name HEIGHT -1 true)
       ;; From icon theme
       (Gtk.Image.new_from_pixbuf (find-icon-pixbuf name))))
+
+(fn find-icon [name]
+  (let [icon (. found-icons name)]
+    (or icon
+        (let [icon (load-icon name)]
+          (tset found-icons name icon)
+          icon))))
 
 (fn update-button [button icon text]
   (match (button:get_child) it (button:remove it))
