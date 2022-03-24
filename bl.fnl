@@ -7,6 +7,15 @@
 (fn disk-free-percent []
   83)
 
+(fn battery-status [path]
+  (let [name (.. (or path "/sys/class/power_supply/BAT0") "/uevent")]
+    (with-open [f (io.open name :r)]
+      (let [fields {}]
+        (each [line #(f:read "*l")]
+          (let [(name value) (line:match "([^=]+)=(.+)")]
+            (tset fields (: (name:gsub "_" "-") :lower) value)))
+        fields))))
+
 (fn spawn []
   true)
 
@@ -26,7 +35,12 @@
    ;;               :text #((f:read):sub 1 10)
    ;;               }))
    (indicator {
-               :text "HI!"
+               :interval (* 10 1000)
+               :text #(let [{:power-supply-energy-full full
+                             :power-supply-energy-now now}
+                            (battery-status)]
+                        (string.format "BAT %d%%"
+                                       (math.floor (* 100 (/ (tonumber now) (tonumber full))))))
                })
    (indicator {
                :interval 5000
