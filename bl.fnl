@@ -56,7 +56,7 @@
                })
    (indicator {
                :interval 1000
-               :text #(os.date "%X")
+               :text #(os.date "%H:%M")
                })
    ]})
 
