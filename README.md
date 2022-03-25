@@ -17,9 +17,9 @@ Not quite dogfood-ready yet, but fast approaching.
 * blinkenlicht.fnl is the module that parses `bar` and `indicator`
   forms and does all the UI
 
-* also in bl.fnl but needs extracting to a home of its own, all the
-  glue that looks up load average, wifi signal strength, time of day
-  etc for indicators to use
+* metric.fnl is a collection of functions that read metrics (load
+  average, battery status etc) from the system, for indicators to
+  display.
 
 Use the `default.nix` for guidance as to libraries and other setup
 required - or just use it, of course.
@@ -44,7 +44,8 @@ Gtk will find it anyway. Magic.
 * [ ] allow height customisation
 * [ ] add some mechanism for indicators that wait for events instead of polling
 * [ ] set poll interval based on indicators' requested intervals
-* [ ] set indicator background colour (use css for this?)
+* [X] set indicator background colour (use css for this?)
+* [ ] allow indicator to change styles based on status
 
 ```fennel
 

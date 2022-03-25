@@ -1,22 +1,9 @@
 (local {: bar : indicator : stylesheet  : run} (require :blinkenlicht))
+(local {: view} (require :fennel))
+
+(local metric (require :metric))
 
 (stylesheet "licht.css")
-
-(fn loadavg []
-  (with-open [f (io.open "/proc/loadavg" :r)]
-    (tonumber (: (f:read "*a") :match "[0-9.]+" ))))
-
-(fn disk-free-percent []
-  83)
-
-(fn battery-status [path]
-  (let [name (.. (or path "/sys/class/power_supply/BAT0") "/uevent")]
-    (with-open [f (io.open name :r)]
-      (let [fields {}]
-        (each [line #(f:read "*l")]
-          (let [(name value) (line:match "([^=]+)=(.+)")]
-            (tset fields (: (name:gsub "_" "-") :lower) value)))
-        fields))))
 
 (fn battery-icon-codepoint [status percent]
   (if ; (= status "Charging") 0xf376 ; glyph not present in font-awesome free
@@ -41,7 +28,7 @@
   [
    (indicator {
                :interval 200
-               :icon #(if (> (loadavg) 2) "face-sad" "face-smile")
+               :icon #(if (> (metric.loadavg) 2) "face-sad" "face-smile")
                })
    ;; (let [f (io.open "/tmp/statuspipe" "r")]
    ;;   (indicator {
@@ -53,7 +40,7 @@
                :classes ["yellow"]
                :text #(let [{:power-supply-energy-full full
                              :power-supply-energy-now now
-                             :power-supply-status status} (battery-status)
+                             :power-supply-status status} (metric.battery)
                             percent (math.floor (* 100 (/ (tonumber now) (tonumber full))))
                             icon-code (battery-icon-codepoint status percent)]
                         (string.format "%s %d%%" (utf8.char icon-code) percent))
