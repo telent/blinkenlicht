@@ -12,7 +12,7 @@ you are happy to exert that control in a Lua-based Lisp language.
 
 Not quite dogfood-ready yet, but fast approaching.
 
-* bl.fnl is an example
+* bl.fnl is an example, using licht.css for its styling
 
 * blinkenlicht.fnl is the module that parses `bar` and `indicator`
   forms and does all the UI

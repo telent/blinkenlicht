@@ -1,4 +1,6 @@
-(local {: bar : indicator : run} (require :blinkenlicht))
+(local {: bar : indicator : stylesheet  : run} (require :blinkenlicht))
+
+(stylesheet "licht.css")
 
 (fn loadavg []
   (with-open [f (io.open "/proc/loadavg" :r)]
@@ -34,6 +36,7 @@
  {
   :anchor [:top :right]
   :orientation :horizontal
+  :classes ["hey"]
   :indicators
   [
    (indicator {
@@ -47,6 +50,7 @@
    ;;               }))
    (indicator {
                :interval (* 10 1000)
+               :classes ["yellow"]
                :text #(let [{:power-supply-energy-full full
                              :power-supply-energy-now now
                              :power-supply-status status} (battery-status)

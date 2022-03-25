@@ -11,6 +11,14 @@
 
 (local HEIGHT 48)
 
+(fn load-styles [pathname]
+  (let [style-provider (Gtk.CssProvider)]
+    (style-provider:load_from_path pathname)
+    (Gtk.StyleContext.add_provider_for_screen
+     (Gdk.Screen.get_default)
+     style-provider
+     Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)))
+
 (fn resolve [f]
   (match (type f)
     "string" f
@@ -57,13 +65,21 @@
     (button:show_all)
     ))
 
+(fn add-css-classes [widget classes]
+  (let [context (widget:get_style_context)]
+    (each [_ c (ipairs classes)]
+      (context:add_class c))))
+
 (fn indicator [{: interval
                 : icon
                 : poll
                 : text
+                : classes
                 : on-click}]
   (var last-update -1)
-  (let [button (Gtk.Button { :relief  Gtk.ReliefStyle.NONE})
+  (let [button (doto (Gtk.Button { :relief  Gtk.ReliefStyle.NONE})
+                 (add-css-classes ["indicator"])
+                 (add-css-classes (or classes [])))
         update (fn [now]
                  (when (and interval (> now (+ last-update interval)))
                    (update-button button icon text)
@@ -96,12 +112,16 @@
 
 (local bars [])
 
-(fn bar [{ : anchor : orientation : indicators }]
+(fn bar [{ : anchor : orientation : indicators :  classes }]
   (let [window (Gtk.Window  {} )
         orientation (match orientation
                       :vertical Gtk.Orientation.VERTICAL
                       :horizontal Gtk.Orientation.HORIZONTAL)
         box (Gtk.Box { :orientation orientation})]
+    (doto box
+      (add-css-classes ["bar"])
+      (add-css-classes (or classes [])))
+
     (table.insert bars { : window : anchor : indicators })
     (each [_ i (ipairs indicators)]
       (box:pack_start i.button false false 0))
@@ -132,4 +152,5 @@
  : bar
  : indicator
  : run
+ :stylesheet load-styles
  }

@@ -1,0 +1,10 @@
+.indicator {
+    background-color: #ff00ff;
+}
+.indicator.yellow {
+    background-color: #ff0;
+}
+
+box.hey {
+    font-size: 18px;
+}
