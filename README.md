@@ -27,6 +27,13 @@ required - or just use it, of course.
     nix-shell
     lua $fennel bl.fnl
 
+The funny symbols in bl.fnl are code points that exist only in the
+"Font Awesome" font, and render to handy icons like "battery, half
+empty".  You need to install Font Awesome to see them; however due to
+the Gtk font fallback system - at least, that's what I think is doing
+it - you don't actually need to specify that font in your CSS because
+Gtk will find it anyway. Magic.
+
 
 ## Plan
 
