@@ -12,12 +12,14 @@
 (local HEIGHT 48)
 
 (fn load-styles [pathname]
-  (let [style-provider (Gtk.CssProvider)]
-    (style-provider:load_from_path pathname)
-    (Gtk.StyleContext.add_provider_for_screen
-     (Gdk.Screen.get_default)
-     style-provider
-     Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)))
+  (let [style-provider (Gtk.CssProvider)
+        (success err) (style-provider:load_from_path pathname)]
+    (if success
+        (Gtk.StyleContext.add_provider_for_screen
+         (Gdk.Screen.get_default)
+         style-provider
+         Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+        (print "failed to load stylesheet" err))))
 
 (fn resolve [f]
   (match (type f)
