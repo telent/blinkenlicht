@@ -5,6 +5,8 @@
         : GLib
         : cairo } (require :lgi))
 
+(local posix (require :posix))
+
 (local {: view} (require :fennel))
 
 (local icon-theme (Gtk.IconTheme.get_default))
@@ -58,40 +60,39 @@
           (tset found-icons name icon)
           icon))))
 
-(fn update-button [button icon text]
-  (match (button:get_child) it (button:remove it))
-  (let [i (resolve icon)]
-    (if i
-        (button:add (find-icon i))
-        (button:add (Gtk.Label {:label (resolve text)})))
-    (button:show_all)
-    ))
-
 (fn add-css-classes [widget classes]
   (let [context (widget:get_style_context)]
     (each [_ c (ipairs classes)]
       (context:add_class c))))
 
-(fn indicator [{: interval
-                : icon
-                : poll
-                : text
-                : classes
+(fn clear-css-classes [widget]
+  (let [context (widget:get_style_context)]
+    (each [_ c (ipairs (context:list_classes))]
+      (context:remove_class c))))
+
+(fn indicator [{: wait-for
+                : refresh
                 : on-click}]
-  (var last-update -1)
-  (let [button (doto (Gtk.Button { :relief  Gtk.ReliefStyle.NONE})
-                 (add-css-classes ["indicator"])
-                 (add-css-classes (or classes [])))
-        update (fn [now]
-                 (when (and interval (> now (+ last-update interval)))
-                   (update-button button icon text)
-                   (set last-update now)))]
-    (update 0)
+  (let [button (Gtk.Button { :relief  Gtk.ReliefStyle.NONE})]
+    (fn update-indicator []
+      (let [content (resolve refresh)]
+        (when content
+          (match (button:get_child) it (button:remove it))
+          (match content
+            {:icon icon} (button:add (find-icon icon))
+            {:text text} (button:add (Gtk.Label {:label text})))
+          (clear-css-classes button)
+          (add-css-classes button ["indicator"])
+          (match content
+            {:classes classes} (add-css-classes button  classes))
+          (button:show_all))))
+    (update-indicator)
+
     {
-     : interval
-     : poll
      : button
-     :update #(update $2)
+     :update update-indicator
+     :inputs (or wait-for.input [])
+     :interval wait-for.interval
      }))
 
 (fn make-layer-shell [window layer exclusive? anchors]
@@ -129,20 +130,35 @@
       (box:pack_start i.button false false 0))
     (window:add box)))
 
-;; we want to run each indicator's update function only when
-;; more than `interval` ms has elapsed since it last ran
+(fn gsource-for-file-input [file cb]
+  (let [fd (posix.stdio.fileno file)]
+    (doto (GLib.unix_fd_source_new fd  GLib.IOCondition.IN)
+      (: :set_callback cb))))
 
+(fn ready-to-update? [indicator now update-times]
+  (if indicator.interval
+      (> now (or (. update-times indicator) 0))))
 
 (fn run []
-  (GLib.timeout_add
+  (each [_ bar (ipairs bars)]
+    (each [_ indicator (ipairs bar.indicators)]
+      (each [_ file (ipairs indicator.inputs)]
+        (GLib.Source.attach
+         (gsource-for-file-input
+          file
+          #(or (indicator:update) true))))))
+  (let [update-times {}]
+    (GLib.timeout_add
      0
-     1000
+     100
      (fn []
        (let [now (/ (GLib.get_monotonic_time) 1000)]
          (each [_ bar (ipairs bars)]
            (each [_ indicator (ipairs bar.indicators)]
-             (indicator:update now))))
-       true))
+             (when (ready-to-update? indicator now update-times)
+               (indicator:update)
+               (tset update-times indicator (+ now indicator.interval))))))
+       true)))
   (each [_ b (ipairs bars)]
     (make-layer-shell b.window :top true
                       (collect [_ edge (ipairs b.anchor)]

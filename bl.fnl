@@ -1,6 +1,9 @@
 (local {: bar : indicator : stylesheet  : run} (require :blinkenlicht))
 (local {: view} (require :fennel))
 
+(local posix (require :posix))
+(local fcntl (require :posix.fcntl))
+
 (local metric (require :metric))
 
 (stylesheet "licht.css")
@@ -26,28 +29,56 @@
   :classes ["hey"]
   :indicators
   [
+   (let [f (io.open "/tmp/statuspipe" :r)]
+     (fcntl.fcntl (posix.stdio.fileno f)
+                  fcntl.F_SETFL fcntl.O_NONBLOCK)
+
+     (indicator {
+                 ;; this is a guide to tell blinkenlicht when it might
+                 ;; be worth calling your `content` function. Your
+                 ;; function may be called at other times too
+                 :wait-for { :input [f] }
+
+                 ;; the `content` function should not block, so e.g
+                 ;; don't read from files unless you know there's data
+                 ;; available. it returns a hash
+                 ;; { :text "foo" } - render "foo" as a label
+                 ;; { :icon "face-sad" } - render icon from theme or pathname
+                 ;; { :classes ["foo" "bar"] - add CSS classes to widget
+                 :refresh
+                 #(let [l (posix.unistd.read (posix.stdio.fileno f) 1024)]
+                    (if l
+                        {:text l}))
+                 }))
+
    (indicator {
-               :interval 200
-               :icon #(if (> (metric.loadavg) 2) "face-sad" "face-smile")
+               :wait-for { :interval 2000 }
+               :refresh
+               #{:icon (if (> (metric.loadavg) 2) "face-sad" "face-smile")}
                })
-   ;; (let [f (io.open "/tmp/statuspipe" "r")]
-   ;;   (indicator {
-   ;;               :poll [f]
-   ;;               :text #((f:read):sub 1 10)
-   ;;               }))
+
    (indicator {
-               :interval (* 10 1000)
-               :classes ["yellow"]
-               :text #(let [{:power-supply-energy-full full
-                             :power-supply-energy-now now
-                             :power-supply-status status} (metric.battery)
-                            percent (math.floor (* 100 (/ (tonumber now) (tonumber full))))
-                            icon-code (battery-icon-codepoint status percent)]
-                        (string.format "%s %d%%" (utf8.char icon-code) percent))
+               :wait-for { :interval (* 1000 10) }
+               :refresh
+               #(let [{:power-supply-energy-full full
+                       :power-supply-energy-now now
+                       :power-supply-status status} (metric.battery)
+                      percent (math.floor
+                               (* 100
+                                  (/ (tonumber now) (tonumber full))))
+                      icon-code (battery-icon-codepoint status percent)]
+                  {:text
+                   (string.format "%s %d%%" (utf8.char icon-code) percent)
+                   :classes ["yellow"]
+                   })
                })
    (indicator {
-               :interval 1000
-               :text #(os.date "%H:%M")
+               :wait-for { :interval 1000 }
+               :refresh #{:text (os.date "%H:%M:%S")}
+               })
+   (indicator {
+               :wait-for { :interval 4000 }
+               :refresh #{:text (os.date "%H:%M:%S")}
                })
    ]})
 
