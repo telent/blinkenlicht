@@ -46,34 +46,3 @@ Gtk will find it anyway. Magic.
 * [ ] set poll interval based on indicators' requested intervals
 * [X] set indicator background colour (use css for this?)
 * [ ] allow indicator to change styles based on status
-
-```fennel
-
-;; your status bar specification might look something like this
-
-(bar
- {
-  :anchor [:top :right]
-  :orientation :horizontal
-  :indicators
-  [
-   (indicator {
-               :interval 200
-               :icon #(if (> loadavg 2) "sad-face" "happy-face")
-               })
-   (let [f (io.open "/tmp/statuspipe" "r")]
-     (indicator {
-                 :poll [f]
-                 :text #(f:read:sub 1 10)
-                 }))
-   (indicator {
-               :interval 5000
-               :text #(.. (disk-free-percent "/") "%")
-               :on-click #(spawn "baobab")
-               })
-   (indicator {
-               :interval 1000
-               :text #(os.date "%X")
-               })
-   ]})
-```
