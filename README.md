@@ -40,9 +40,13 @@ Gtk will find it anyway. Magic.
 * [X] use gtk-layer-shell to put it in a layer
 * [X] update only at relevant intervals
 * [X] cache icon pixbufs
+* [X] add some mechanism for indicators that wait for events instead of polling
+* [X] set indicator background colour (use css for this?)
 * [ ] update image/label widget instead of destroying
 * [ ] allow height customisation
-* [ ] add some mechanism for indicators that wait for events instead of polling
 * [ ] set poll interval based on indicators' requested intervals
-* [X] set indicator background colour (use css for this?)
 * [ ] allow indicator to change styles based on status
+* [ ] add metrics for
+  - wireless connected/strength
+  - wwan connected/type (hspa, lte, etc)/signal
+  - cpu %
