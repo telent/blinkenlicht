@@ -73,7 +73,7 @@
 (fn indicator [{: wait-for
                 : refresh
                 : on-click}]
-  (let [button (Gtk.Button { :relief  Gtk.ReliefStyle.NONE})]
+  (let [button (Gtk.EventBox { })]
     (fn update-indicator []
       (let [content (resolve refresh)]
         (when content
