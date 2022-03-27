@@ -44,8 +44,8 @@ Gtk will find it anyway. Magic.
 * [X] set indicator background colour (use css for this?)
 * [ ] update image/label widget instead of destroying
 * [ ] allow height customisation
-* [ ] set poll interval based on indicators' requested intervals
-* [ ] allow indicator to change styles based on status
+* [X] set poll interval based on indicators' requested intervals
+* [X] allow indicator to change styles based on status
 * [ ] add metrics for
   - wireless connected/strength
   - wwan connected/type (hspa, lte, etc)/signal

@@ -139,18 +139,40 @@
   (if indicator.interval
       (> now (or (. update-times indicator) 0))))
 
+(fn hcf [a b]
+  (let [remainder (% a b)]
+    (if (= remainder 0)
+        b
+        (hcf b remainder))))
+
+(assert (= (hcf 198 360)  18))
+(assert (= (hcf 10 15) 5))
+
+(fn minimum-interval [intervals]
+  (accumulate [min (. intervals 1)
+               _ interval (ipairs intervals)]
+              (hcf min interval)))
+
+(assert (= (minimum-interval [ 350 1000 5000 ])  50))
+
 (fn run []
+  (var intervals [])
   (each [_ bar (ipairs bars)]
     (each [_ indicator (ipairs bar.indicators)]
+      (if indicator.interval
+          (table.insert intervals indicator.interval))
       (each [_ file (ipairs indicator.inputs)]
         (GLib.Source.attach
          (gsource-for-file-input
           file
           #(or (indicator:update) true))))))
-  (let [update-times {}]
+  (let [update-times {}
+        interval (minimum-interval intervals)]
+    (when (< interval 100)
+      (print (.. "required refresh interval is " interval "ms")))
     (GLib.timeout_add
      0
-     100
+     (minimum-interval intervals)
      (fn []
        (let [now (/ (GLib.get_monotonic_time) 1000)]
          (each [_ bar (ipairs bars)]
