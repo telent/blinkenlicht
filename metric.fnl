@@ -15,4 +15,28 @@
             (tset fields (: (name:gsub "_" "-") :lower) value)))
         fields))))
 
-{ : loadavg : battery }
+(fn parse-cpu-stat-line [line]
+  (let [labels [:user :nice :system :idle :iowait
+                :irq :softirq :steal :guest :guest_nice]
+        vals (icollect [field (line:gmatch "([%d.]+)")]
+                 (tonumber field))]
+    (collect [i label (ipairs labels)]
+      label (. vals i))))
+
+(var  proc-stat-handle nil)
+
+(fn cpustat [path]
+  (if proc-stat-handle
+      (proc-stat-handle:seek :set 0)
+      (set proc-stat-handle (io.open "/proc/stat" :r)))
+  (let [f proc-stat-handle]
+    (accumulate [ret nil
+                 line #(f:read "*l") ]
+                (if (= (string.sub line  1 (# "cpu ")) "cpu ")
+                    (parse-cpu-stat-line line)
+                    ret))))
+
+{: loadavg
+ : battery
+ : cpustat
+ }
