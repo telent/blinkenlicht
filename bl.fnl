@@ -29,6 +29,19 @@
   :classes ["hey"]
   :indicators
   [
+   (let []
+     (var previous 0)
+     ;; on my laptop, adding this indicator has made the task
+     ;; go from ~ 1% cpu to around 3%, which is not ideal
+     (indicator {
+                 :wait-for { :interval (* 1 500) }
+                 :refresh
+                 #(let [current (. (metric.cpustat) :iowait)
+                        v (if (< previous current) "" " ")]
+                    (set previous current)
+                    {:text v})
+                 }))
+
    (let [f (io.open "/tmp/statuspipe" :r)]
      (fcntl.fcntl (posix.stdio.fileno f)
                   fcntl.F_SETFL fcntl.O_NONBLOCK)
