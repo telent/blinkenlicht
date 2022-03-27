@@ -131,7 +131,7 @@
     (window:add box)))
 
 (fn gsource-for-file-input [file cb]
-  (let [fd (posix.stdio.fileno file)]
+  (let [fd file.fileno]
     (doto (GLib.unix_fd_source_new fd  GLib.IOCondition.IN)
       (: :set_callback cb))))
 

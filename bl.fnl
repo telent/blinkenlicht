@@ -1,9 +1,7 @@
 (local {: bar : indicator : stylesheet  : run} (require :blinkenlicht))
 (local {: view} (require :fennel))
 
-(local posix (require :posix))
-(local fcntl (require :posix.fcntl))
-
+(local iostream (require :iostream))
 (local metric (require :metric))
 
 (stylesheet "licht.css")
@@ -42,10 +40,7 @@
                     {:text v})
                  }))
 
-   (let [f (io.open "/tmp/statuspipe" :r)]
-     (fcntl.fcntl (posix.stdio.fileno f)
-                  fcntl.F_SETFL fcntl.O_NONBLOCK)
-
+   (let [f (iostream.open "/tmp/statuspipe" :r)]
      (indicator {
                  ;; this is a guide to tell blinkenlicht when it might
                  ;; be worth calling your `content` function. Your
@@ -59,7 +54,7 @@
                  ;; { :icon "face-sad" } - render icon from theme or pathname
                  ;; { :classes ["foo" "bar"] - add CSS classes to widget
                  :refresh
-                 #(let [l (posix.unistd.read (posix.stdio.fileno f) 1024)]
+                 #(let [l (f:read 1024)]
                     (if l
                         {:text l}))
                  }))
