@@ -7,7 +7,7 @@
 (stylesheet "licht.css")
 
 (fn battery-icon-codepoint [status percent]
-  (if ; (= status "Charging") 0xf376 ; glyph not present in font-awesome free
+  (if (= status "Charging") 0xf0e7
       (> percent 90) 0xf240                ;full
       (> percent 60) 0xf241                ;3/4
       (> percent 40) 0xf242                ;1/2
