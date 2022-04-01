@@ -35,7 +35,8 @@
                  :wait-for { :interval (* 1 500) }
                  :refresh
                  #(let [current (. (metric.cpustat) :iowait)
-                        v (if (< previous current) "" " ")]
+                        delta (- current previous)
+                        v (if (> delta 4) "" "  ")]
                     (set previous current)
                     {:text v})
                  }))
