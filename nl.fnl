@@ -1,8 +1,5 @@
 (local nl (require :netlink))
 (local view (. (require :fennel) :view))
-(print (string.format "All known netlink groups: %s"
-                      (table.concat (nl.groups) ", ")))
-(local nls (nl.socket))
 
 ;; $ grep DEVTYPE /sys/class/net/*/uevent
 ;; /sys/class/net/docker0/uevent:DEVTYPE=bridge
@@ -57,13 +54,15 @@
         (tset event :quality (wlan-link-quality event.name)))
       (when (= dtype "wwan")
         ;; for wwan, need to determine how to get strength and carrier name
-        )))
+        true)
+      ))
   event)
 
 
 (fn netlunk []
   (let [links {}
-        routes {}]
+        routes {}
+        sock (nl.socket)]
     (fn handle-event [event]
       (match event
         {:event :newlink}
@@ -77,20 +76,20 @@
 
         {} (print :unhandled event.event)
         ))
-    (each [_ event (ipairs (nls:query ))]
+    (each [_ event (ipairs (sock:query ))]
       (handle-event event))
 
     {
-     :refresh #(each [_ event (ipairs (nls:event))]
+     :refresh #(each [_ event (ipairs (sock:event))]
                  (handle-event event))
-     :fd (nls:fd)
+     :fd (sock:fd)
      :uplink (fn [self]
                (let [defaultroute routes.default
                      interface (and defaultroute
                                     (. links defaultroute.index))]
                  (and interface (= interface.running "yes")
                       (get-network-info interface))))
-     :wait #(nls:poll 1000)
+     :wait #(sock:poll 1000)
      :interface (fn [self ifnum]  (. links ifnum))
      }
     ))
@@ -104,9 +103,3 @@
       nil
       (print "no default route")
       )))
-
-
-
-;; default route is newroute event without dst
-
-;; look for newlink event with  :running "yes"
