@@ -20,11 +20,14 @@ let
     hash = "sha256:1nha32yilzagfwrs44hc763jgwxd700kaik1is7x7lsjjvkgapw7";
   };
 
+  netlink =  lua53Packages.callPackage ./netlink.nix {};
+
   lua = lua5_3.withPackages (ps: with ps; [
     lgi
     luafilesystem
     luaposix
     readline
+    netlink
   ]);
 
 in stdenv.mkDerivation {
