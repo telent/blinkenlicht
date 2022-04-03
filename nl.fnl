@@ -5,23 +5,8 @@
 (local nls (nl.socket))
 (print "File descriptor:" (nls:fd))
 
-;; (local links
-;;        (collect
-;;            [_ l (ipairs  (nls:query {:link true}))]
-;;          l.name l))
-;; (print (view links))
 
-;; ;; (local routes (nls:query {:route true}))
-;; ;; (print "Query route status:" (view routes))
 
-;; (print :routes (view (nls:query {:route true})))
-;; (print :route6 (view (nls:query {:route6 true})))
-
-;; ;; (each [_ entry (pairs routes)]
-;; ;;   (local eth (nl.ethtool entry.name))
-;; ;;   (when eth.speed
-;; ;;     (print "ETH:" entry.name (view eth))))
-;; (print "GROUPS:" (view (nls:groups)))
 
 ;; when we have a default route, we get the ifname
 
@@ -33,8 +18,6 @@
 
 ;; if the type is wlan, we can get a signal strength indicator
 ;; from the  "quality - link" column of /proc/net/wireless
-;; and network name from `iwgetid wlan0 --raw`
-;; or directly using an ioctl http://papermint-designs.com/dmo-blog/2016-08-how-to-get-the-essid-of-the-wifi-network-you-are-connected-to-#
 
 ;; for wwan, need to determine how to get strength and carrier name
 
@@ -49,7 +32,6 @@
   (let [links {}
         routes {}]
     (fn handle-event [event]
-;      (print :event (view event))
       (match event
         {:event :newlink}
         (match event.up
