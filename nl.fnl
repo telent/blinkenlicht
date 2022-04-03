@@ -3,7 +3,6 @@
 (print (string.format "All known netlink groups: %s"
                       (table.concat (nl.groups) ", ")))
 (local nls (nl.socket))
-(print "File descriptor:" (nls:fd))
 
 ;; when we have a default route, we get the ifname
 
@@ -47,7 +46,7 @@
      :fd (nls:fd)
      :uplink (fn [self] routes.default)
      :wait #(nls:poll 1000)
-     :interface (fn [self ifnum] (print :lookup ifnum (view links)) (. links ifnum))
+     :interface (fn [self ifnum]  (. links ifnum))
      }
     ))
 
