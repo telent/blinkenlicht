@@ -58,8 +58,7 @@
       ))
   event)
 
-
-(fn netlunk []
+(fn uplink []
   (let [links {}
         routes {}
         sock (nl.socket)]
@@ -83,17 +82,20 @@
      :refresh #(each [_ event (ipairs (sock:event))]
                  (handle-event event))
      :fd (sock:fd)
-     :uplink (fn [self]
+     :status (fn [self]
+               (self:refresh)
                (let [defaultroute routes.default
                      interface (and defaultroute
                                     (. links defaultroute.index))]
                  (and interface (= interface.running "yes")
                       (get-network-info interface))))
      :wait #(sock:poll 1000)
-     :interface (fn [self ifnum]  (. links ifnum))
+     :interface (fn [self ifnum]
+                  (. links ifnum))
      }
     ))
 
+(comment
 (let [nl (netlunk)]
   (while (or (nl:wait) true)
     (nl:refresh)
@@ -102,4 +104,8 @@
       (print "default route through " (view interface))
       nil
       (print "no default route")
-      )))
+      ))))
+
+{
+ :new uplink
+ }

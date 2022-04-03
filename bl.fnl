@@ -3,6 +3,7 @@
 
 (local iostream (require :iostream))
 (local metric (require :metric))
+(local uplink (require :uplink))
 
 (stylesheet "licht.css")
 
@@ -15,7 +16,6 @@
       (>= percent 0)  0xf244                ;empty
       ; 0xf377         ; glyph not present in font-awesome free
       ))
-
 
 (fn spawn []
   true)
@@ -40,6 +40,25 @@
                     (set previous current)
                     {:text v})
                  }))
+
+   (let [uplink (uplink.new)
+         input (iostream.from-descriptor uplink.fd)]
+     (indicator {
+                 :wait-for {
+                            :input [input]
+                            :interval (* 4 1000)
+                            }
+                 :refresh
+                 #(let [status (uplink:status)]
+                    (if status
+                        {:text (.. (or status.ssid status.name "?")
+                                   " "
+                                   (if status.quality
+                                       (tostring (+ status.quality 100))
+                                       ""))}
+                        {:text "no internet"}
+                        ))
+                    }))
 
    (let [f (iostream.open "/tmp/statuspipe" :r)]
      (indicator {
