@@ -5,9 +5,6 @@
 (local nls (nl.socket))
 (print "File descriptor:" (nls:fd))
 
-
-
-
 ;; when we have a default route, we get the ifname
 
 ;; $ grep DEVTYPE /sys/class/net/*/uevent
@@ -21,12 +18,7 @@
 
 ;; for wwan, need to determine how to get strength and carrier name
 
-(fn find [predicate tbl]
-  (accumulate [found nil
-               _ el (ipairs tbl)]
-              (if (predicate el) el found)))
 
-(print (find #(= $1 "hey") [:one :two :hey :three]))
 
 (fn netlunk []
   (let [links {}
