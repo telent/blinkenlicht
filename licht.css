@@ -1,15 +1,12 @@
 .indicator {
     color: #eef;
-    background-color: #000;
     font-size: 11px;
 }
 
 .indicator * {
-    margin: 5px 8px;
-    padding: 5px 5px;
-    background-color: #225;
+    margin: 5px 0px 5px 12px;
 }
 
 .bar {
-    background-color: #000;
+    background-color: #200;
 }

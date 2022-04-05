@@ -1,4 +1,5 @@
 (local {: bar : indicator : stylesheet  : run} (require :blinkenlicht))
+
 (local {: view} (require :fennel))
 
 (local iostream (require :iostream))
@@ -65,7 +66,6 @@
      (indicator {
                  :wait-for {
                             :input [input]
-                            :interval (* 4 1000)
                             }
                  :refresh
                  #(let [status (uplink:status)]
@@ -73,60 +73,32 @@
                         {:text (.. (or status.ssid status.name "?")
                                    " "
                                    (if status.quality
+                                       ;; this is in dBm, allegedly.
+                                       ;; typical values
+                                       ;; -20 (good) -> -100 (awful)
                                        (tostring (+ status.quality 100))
                                        ""))}
                         {:text "no internet"}
                         ))
                     }))
 
-   (let [f (iostream.open "/tmp/statuspipe" :r)]
-     (indicator {
-                 ;; this is a guide to tell blinkenlicht when it might
-                 ;; be worth calling your `content` function. Your
-                 ;; function may be called at other times too
-                 :wait-for { :input [f] }
-
-                 ;; the `content` function should not block, so e.g
-                 ;; don't read from files unless you know there's data
-                 ;; available. it returns a hash
-                 ;; { :text "foo" } - render "foo" as a label
-                 ;; { :icon "face-sad" } - render icon from theme or pathname
-                 ;; { :classes ["foo" "bar"] - add CSS classes to widget
-                 :refresh
-                 #(let [l (f:read 1024)]
-                    (if l
-                        {:text l}))
-                 }))
-
-   (indicator {
-               :wait-for { :interval 2000 }
-               :refresh
-               #{:icon (if (> (metric.loadavg) 2) "face-sad" "face-smile")}
-               })
-
    (indicator {
                :wait-for { :interval (* 1000 10) }
                :refresh
-               #(let [{:power-supply-energy-full full
-                       :power-supply-energy-now now
+               #(let [{:power-supply-capacity percent
                        :power-supply-status status} (metric.battery)
-                      percent (math.floor
-                               (* 100
-                                  (/ (tonumber now) (tonumber full))))
-                      icon-code (battery-icon-codepoint status percent)]
+                      icon-code (battery-icon-codepoint
+                                 status (tonumber percent))]
                   {:text
                    (string.format "%s %d%%" (utf8.char icon-code) percent)
                    :classes ["yellow"]
                    })
                })
    (indicator {
-               :wait-for { :interval 1000 }
-               :refresh #{:text (os.date "%H:%M:%S")}
-               })
-   (indicator {
                :wait-for { :interval 4000 }
-               :refresh #{:text (os.date "%H:%M:%S")}
+               :refresh #{:text (os.date "%H:%M")}
                })
+
    ]})
 
 (run)
