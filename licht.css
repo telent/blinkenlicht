@@ -1,13 +1,15 @@
 .indicator {
-    background-color: #ff00ff;
-}
-.indicator.yellow {
-    background-color: #ff0;
+    color: #eef;
+    background-color: #000;
+    font-size: 11px;
 }
 
-box.hey {
-    font-size: 18px;
+.indicator * {
+    margin: 5px 8px;
+    padding: 5px 5px;
+    background-color: #225;
 }
-label {
-    margin: 0px 12px;
+
+.bar {
+    background-color: #000;
 }

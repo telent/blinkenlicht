@@ -2,6 +2,7 @@
         : GtkLayerShell
         : Gdk
         : GdkPixbuf
+        : Gio
         : GLib
         : cairo } (require :lgi))
 
@@ -13,15 +14,34 @@
 
 (local HEIGHT 48)
 
+(local css-provider
+       (let [p (Gtk.CssProvider)]
+         (Gtk.StyleContext.add_provider_for_screen
+          (Gdk.Screen.get_default)
+          p
+          Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+         p))
+
 (fn load-styles [pathname]
-  (let [style-provider (Gtk.CssProvider)
-        (success err) (style-provider:load_from_path pathname)]
-    (if success
-        (Gtk.StyleContext.add_provider_for_screen
-         (Gdk.Screen.get_default)
-         style-provider
-         Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+  (let [(success err) (css-provider:load_from_path pathname)]
+    (or success
         (print "failed to load stylesheet" err))))
+
+(var file-monitor nil)
+(fn watch-stylesheet [pathname]
+  (let [f (Gio.File.new_for_path pathname)
+        (monitor err)
+        (Gio.File.monitor f Gio.FileMonitorFlags.NONE nil)]
+    (load-styles pathname)
+    (if (not monitor) (print :watch-stylesheet err))
+    (set file-monitor monitor)
+    (doto monitor
+      (tset
+       :on_changed
+       #(print "changed "
+               (load-styles (: $2 :get_path)))))))
+
+
 
 (fn resolve [f]
   (match (type f)
@@ -184,7 +204,7 @@
   (each [_ b (ipairs bars)]
     (make-layer-shell b.window :top true
                       (collect [_ edge (ipairs b.anchor)]
-                        edge 1))
+                        edge 0))
     (b.window:show_all))
   (Gtk.main))
 
@@ -192,5 +212,6 @@
  : bar
  : indicator
  : run
- :stylesheet load-styles
+ :stylesheet watch-stylesheet
+ : file-monitor                         ;don't let this get GCed
  }
