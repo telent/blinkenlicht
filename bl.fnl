@@ -4,6 +4,7 @@
 (local iostream (require :iostream))
 (local metric (require :metric))
 (local uplink (require :uplink))
+(local modem (require :modem))
 
 (stylesheet "licht.css")
 
@@ -39,6 +40,20 @@
                         v (if (> delta 4) "" "  ")]
                     (set previous current)
                     {:text v})
+                 }))
+
+   (let [modem (modem.new)]
+     (indicator {
+                 :wait-for {
+                            :interval (* 4 1000)
+                            }
+                 :refresh
+                 #(let [{:m3gpp-operator-name operator
+                         :signal-quality quality} (modem:value)]
+                    {:text (.. operator
+                               ;" " (. quality 1) "dBm"
+                               )
+                     })
                  }))
 
    (let [uplink (uplink.new)

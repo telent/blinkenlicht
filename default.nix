@@ -9,6 +9,7 @@
 , librsvg
 , lua53Packages
 , lua5_3
+, luaDbusProxy
 , makeWrapper
 , writeText
 }:
@@ -24,6 +25,7 @@ let
 
   lua = lua5_3.withPackages (ps: with ps; [
     lgi
+    luaDbusProxy
     luafilesystem
     luaposix
     readline

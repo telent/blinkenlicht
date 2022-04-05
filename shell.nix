@@ -1,2 +1,4 @@
-with import <nixpkgs> {} ;
+with import <nixpkgs> {
+  overlays = [ (import ../slab/overlay.nix) ];
+} ;
 callPackage ./. {}
