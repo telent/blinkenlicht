@@ -23,8 +23,12 @@
 
 (bar
  {
-  :anchor [:top :right]
+  ;; bar must be full width to set up an "exclusive zone" (moves
+  ;; other windows out of the way), otherwise it will display on
+  ;; to of whatever's on the screen already
+  :anchor [:top :right :left]
   :orientation :horizontal
+  :gravity :end
   :classes ["hey"]
   :indicators
   [

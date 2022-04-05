@@ -135,7 +135,9 @@
 
 (local bars [])
 
-(fn bar [{ : anchor : orientation : indicators :  classes }]
+(fn bar [{: anchor : orientation : indicators
+          : gravity
+          : classes }]
   (let [window (Gtk.Window  {} )
         orientation (match orientation
                       :vertical Gtk.Orientation.VERTICAL
@@ -144,6 +146,9 @@
     (doto box
       (add-css-classes ["bar"])
       (add-css-classes (or classes [])))
+
+    (if (= gravity :end)
+        (box:pack_start (Gtk.EventBox) true true 0))
 
     (table.insert bars { : window : anchor : indicators })
     (each [_ i (ipairs indicators)]
