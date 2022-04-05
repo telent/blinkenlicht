@@ -71,6 +71,10 @@
                 "no" event))
 
         {:event :newroute}
+        ;; XXX there may be >1 route to any given destination,
+        ;; (e.g wwan and wlan both have default route)
+        ;; we probably need to store all of them and
+        ;; distinguish by metric
         (tset routes (or event.dst "default") event)
 
         {} (print :unhandled event.event)
