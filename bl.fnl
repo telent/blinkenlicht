@@ -86,12 +86,13 @@
                :wait-for { :interval (* 1000 10) }
                :refresh
                #(let [{:power-supply-capacity percent
-                       :power-supply-status status} (metric.battery)
+                       :power-supply-status status}
+                      (metric.battery "axp20x-battery")
                       icon-code (battery-icon-codepoint
                                  status (tonumber percent))]
                   {:text
                    (string.format "%s %d%%" (utf8.char icon-code) percent)
-                   :classes ["yellow"]
+                   :classes ["battery" (if (< (tonumber percent) 20) "low" "ok")]
                    })
                })
    (indicator {

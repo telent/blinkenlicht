@@ -7,6 +7,10 @@
     margin: 5px 0px 5px 12px;
 }
 
+.battery.low {
+    background-color: #e00;
+}
+
 .bar {
     background-color: #200;
 }
