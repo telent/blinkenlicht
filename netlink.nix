@@ -1,4 +1,4 @@
-{ lua, lib,  fetchFromGitHub, buildLuaPackage, libmnl }:
+{ lua, lib, fetchpatch, fetchFromGitHub, buildLuaPackage, libmnl }:
 let pname = "netlink";
 in buildLuaPackage {
   inherit pname;
@@ -12,6 +12,12 @@ in buildLuaPackage {
     rev = "v0.1.1";
     hash = "sha256:1833naskl4p7rz5kk0byfgngvw1mvf6cnz64sr3ny7i202wv7s52";
   };
+  patches = [ (fetchpatch {
+    url = "https://github.com/chris2511/lua-netlink/compare/master...telent:rtnetlink-types.patch";
+    name = "rtnetlink-types.patch";
+    hash = "sha256-lBCfP8pMyBIY+XEGWD/nPQ9l2dDOnXeitR1TaRUXCq8=";
+  })];
+
   buildPhase = "$CC -shared -l mnl -o netlink.so src/*.c";
 
   installPhase = ''

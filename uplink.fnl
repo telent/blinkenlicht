@@ -75,7 +75,11 @@
         ;; (e.g wwan and wlan both have default route)
         ;; we probably need to store all of them and
         ;; distinguish by metric
-        (tset routes (or event.dst "default") event)
+        (let [dst (or event.dst "default")
+              existing (. routes dst)]
+          (if (or (not existing)
+                  (< event.metric existing.metric))
+              (tset routes dst event)))
 
         {} (print :unhandled event.event)
         ))
