@@ -3,9 +3,11 @@
 (local {: view} (require :fennel))
 
 (local iostream (require :iostream))
-(local metric (require :metric))
-(local uplink (require :uplink))
 (local modem (require :modem))
+
+(local uplink (require :metric.uplink))
+(local battery (require :metric.battery))
+(local cpustat (require :metric.cpustat))
 
 (stylesheet "licht.css")
 
@@ -40,26 +42,27 @@
      (indicator {
                  :wait-for { :interval (* 1 500) }
                  :refresh
-                 #(let [current (. (metric.cpustat) :iowait)
-                        delta (- current previous)
-                        v (if (> delta 4) "" "  ")]
-                    (set previous current)
-                    {:text v})
+                 (let [stat (cpustat.new)]
+                   #(let [current (. (stat:read) :iowait)
+                          delta (- current previous)
+                          v (if (> delta 4) "" "  ")]
+                      (set previous current)
+                      {:text v}))
                  }))
 
-   (let [modem (modem.new)]
-     (indicator {
-                 :wait-for {
+   (indicator {
+               :wait-for {
                             :interval (* 4 1000)
-                            }
-                 :refresh
+                          }
+               :refresh
+               (let [modem (modem.new)]
                  #(let [{:m3gpp-operator-name operator
-                         :signal-quality quality} (modem:value)]
+                         :signal-quality quality} (modem:read)]
                     {:text (.. operator
-                               ;" " (. quality 1) "dBm"
+                               ;;" " (. quality 1) "dBm"
                                )
-                     })
-                 }))
+                     }))
+                 })
 
    (let [uplink (uplink.new)
          input (iostream.from-descriptor uplink.fd)]
@@ -68,7 +71,7 @@
                             :input [input]
                             }
                  :refresh
-                 #(let [status (uplink:status)]
+                 #(let [status (uplink:read)]
                     (if status
                         {:text (.. (or status.ssid status.name "?")
                                    " "
@@ -85,15 +88,17 @@
    (indicator {
                :wait-for { :interval (* 1000 10) }
                :refresh
-               #(let [{:power-supply-capacity percent
-                       :power-supply-status status}
-                      (metric.battery "axp20x-battery")
-                      icon-code (battery-icon-codepoint
-                                 status (tonumber percent))]
-                  {:text
-                   (string.format "%s %d%%" (utf8.char icon-code) percent)
-                   :classes ["battery" (if (< (tonumber percent) 20) "low" "ok")]
-                   })
+               (let [battery (battery.new (or (os.getenv "BLINKEN_BATTERY")
+                                              "axp20x-battery"))]
+                 #(let [{:power-supply-capacity percent
+                         :power-supply-status status}
+                        (battery.read)
+                        icon-code (battery-icon-codepoint
+                                   status (tonumber percent))]
+                    {:text
+                     (string.format "%s %d%%" (utf8.char icon-code) percent)
+                     :classes ["battery" (if (< (tonumber percent) 20) "low" "ok")]
+                     }))
                })
    (indicator {
                :wait-for { :interval 4000 }

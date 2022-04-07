@@ -17,9 +17,9 @@ Not quite dogfood-ready yet, but fast approaching.
 * blinkenlicht.fnl is the module that parses `bar` and `indicator`
   forms and does all the UI
 
-* metric.fnl is a collection of functions that read metrics (load
-  average, battery status etc) from the system, for indicators to
-  display.
+* metric/*.fnl is a collection of modules that read metrics (load
+  average, connectivity, battery status etc) from the system, for
+  indicators to display.
 
 Use the `default.nix` for guidance as to libraries and other setup
 required - or just use it, of course.
@@ -43,10 +43,10 @@ Gtk will find it anyway. Magic.
 * [X] add some mechanism for indicators that wait for events instead of polling
 * [X] set indicator background colour (use css for this?)
 * [ ] update image/label widget instead of destroying
-* [ ] allow height customisation
+* [ ] allow image height customisation
 * [X] set poll interval based on indicators' requested intervals
 * [X] allow indicator to change styles based on status
 * [ ] add metrics for
-  - wireless connected/strength
+  - [X] wireless connected/strength
   - wwan connected/type (hspa, lte, etc)/signal
   - cpu %

@@ -90,13 +90,13 @@
      :refresh #(each [_ event (ipairs (sock:event))]
                  (handle-event event))
      :fd (sock:fd)
-     :status (fn [self]
-               (self:refresh)
-               (let [defaultroute routes.default
-                     interface (and defaultroute
-                                    (. links defaultroute.index))]
-                 (and interface (= interface.running "yes")
-                      (get-network-info interface))))
+     :read (fn [self]
+             (self:refresh)
+             (let [defaultroute routes.default
+                   interface (and defaultroute
+                                  (. links defaultroute.index))]
+               (and interface (= interface.running "yes")
+                    (get-network-info interface))))
      :wait #(sock:poll 1000)
      :interface (fn [self ifnum]
                   (. links ifnum))
