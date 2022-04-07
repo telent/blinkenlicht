@@ -21,6 +21,13 @@
       ; 0xf377         ; glyph not present in font-awesome free
       ))
 
+(fn wlan-quality-class [quality]
+  (if (< -50 quality) "p100"
+      (< -67 quality) "p75"
+      (< -70 quality) "p50"
+      (< -80 quality) "p25"
+      "p0"))
+
 (fn spawn []
   true)
 
@@ -71,16 +78,15 @@
                             :input [input]
                             }
                  :refresh
-                 #(let [status (uplink:read)]
+                 #(let [status (uplink:read)
+                        devtype status.devtype]
                     (if status
                         {:text (.. (or status.ssid status.name "?")
-                                   " "
-                                   (if status.quality
-                                       ;; this is in dBm, allegedly.
-                                       ;; typical values
-                                       ;; -20 (good) -> -100 (awful)
-                                       (tostring (+ status.quality 100))
-                                       ""))}
+                                   " ")
+                         :classes [devtype
+                                   (and (= devtype "wlan")
+                                        (wlan-quality-class status.quality))]
+                         }
                         {:text "no internet"}
                         ))
                     }))

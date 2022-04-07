@@ -11,7 +11,35 @@
     background-color: #e00;
 }
 
+
+.wlan {
+    color: white;
+    background-size: 16px;
+    background-repeat: no-repeat;
+    background-position: 0 50%;
+}
+.wlan label {
+    /* leave a gap for the image */
+    margin-left: 19px;
+}
+
+.wlan.p100 {
+    background-image: -gtk-recolor(url("wifi.svg"), foreground white);
+}
+
+.wlan.p75 {
+    background-image: -gtk-recolor(url("wifi-3.svg"), foreground white);
+}
+
+.wlan.p50 {
+    background-image: -gtk-recolor(url("wifi-2.svg"), foreground white);
+}
+
+.wlan.p25,.wlan.p0 {
+    background-image: -gtk-recolor(url("wifi-1.svg"), foreground white);
+}
+
 .bar {
-    background-color: #200;
+    background-color: #20f;
     padding-right: 1em;
 }
