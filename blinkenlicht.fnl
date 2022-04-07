@@ -38,10 +38,7 @@
     (doto monitor
       (tset
        :on_changed
-       #(print "changed "
-               (load-styles (: $2 :get_path)))))))
-
-
+       #(load-styles (: $2 :get_path))))))
 
 (fn resolve [f]
   (match (type f)
