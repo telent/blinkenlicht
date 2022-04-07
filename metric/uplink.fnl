@@ -71,17 +71,15 @@
                 "no" event))
 
         {:event :newroute}
-        ;; XXX there may be >1 route to any given destination,
+        ;; there may be >1 route to any given destination,
         ;; (e.g wwan and wlan both have default route)
-        ;; we probably need to store all of them and
-        ;; distinguish by metric
+        ;; so we only update the routes table if the
+        ;; metric is lower
         (let [dst (or event.dst "default")
               existing (. routes dst)]
           (if (or (not existing)
                   (< event.metric existing.metric))
               (tset routes dst event)))
-
-        {} (print :unhandled event.event)
         ))
     (each [_ event (ipairs (sock:query ))]
       (handle-event event))

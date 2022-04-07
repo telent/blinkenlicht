@@ -6,7 +6,7 @@
 
 ;; https://www.freedesktop.org/software/ModemManager/api/latest/ref-dbus.html
 
-(fn  modem-manager []
+(fn modem-manager []
   (dbus.Proxy:new
    {
     :bus dbus.Bus.SYSTEM
