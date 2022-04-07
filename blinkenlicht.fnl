@@ -60,11 +60,17 @@
 
 (local found-icons {})
 
+(macro check-err [form]
+  `(let [(result# err#) ,form]
+     (or result#
+         (error err#))))
+
 (fn load-icon [name]
   (let [pixbuf
         (if (= (name:sub 1 1) "/")
             ;; From a direct path
-            (GdkPixbuf.Pixbuf.new_from_file_at_scale name HEIGHT -1 true)
+            (check-err
+             (GdkPixbuf.Pixbuf.new_from_file_at_scale name HEIGHT -1 true))
             ;; From icon theme
             (find-icon-pixbuf name))]
     (Gtk.Image.new_from_pixbuf pixbuf)))
