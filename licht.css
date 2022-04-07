@@ -1,6 +1,6 @@
 .indicator {
     color: #eef;
-    font-size: 11px;
+    font-size: 15px;
 }
 
 .indicator * {
@@ -13,4 +13,5 @@
 
 .bar {
     background-color: #200;
+    padding-right: 1em;
 }
