@@ -32,6 +32,8 @@ let
     netlink
   ]);
 
+  gdk_pixbuf_module_file = "${librsvg.out}/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache";
+
 in stdenv.mkDerivation {
   inherit pname;
   version = "0.1";
@@ -48,6 +50,9 @@ in stdenv.mkDerivation {
   nativeBuildInputs = [ lua makeWrapper ];
 
   makeFlags = [ "PREFIX=${placeholder "out"}" ];
+
+  GDK_PIXBUF_MODULE_FILE = gdk_pixbuf_module_file;
+
   # GDK_PIXBUF_MODULE_FILE setting is to support SVG icons without
   # their having been transformed to bitmaps.
   # This makes a big difference to how many icons are displayed on
@@ -55,6 +60,6 @@ in stdenv.mkDerivation {
   postInstall = ''
     mkdir -p $out/share/dbus-1/services
 
-    wrapProgram $out/bin/${pname} --set GDK_PIXBUF_MODULE_FILE ${librsvg.out}/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache --set GI_TYPELIB_PATH "$GI_TYPELIB_PATH"
+    wrapProgram $out/bin/${pname} --set GDK_PIXBUF_MODULE_FILE ${gdk_pixbuf_module_file} --set GI_TYPELIB_PATH "$GI_TYPELIB_PATH"
   '';
 }
